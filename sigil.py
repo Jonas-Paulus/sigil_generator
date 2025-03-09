@@ -30,18 +30,20 @@ class polygramm():
     def calc_intersecs(self, points, lines):
         inner_points = np.zeros([self.p,2])
         for i in range(len(lines)):
-            print(i)
+            #print(i)
             A1 = points[lines[i][0],:]
             A2 = points[lines[i][1],:]
             B1 = points[lines[(i+1)%self.p][0],:]
             B2 = points[lines[(i+1)%self.p][1],:]
-            print(A1)
+            #print(A1)
             Y = A1-B1
             M = np.array([B2-B1, A2-A1])
-            print(M)
+            #print(M)
             x = np.linalg.solve(M.T,Y)
             inner_points[i] = A1 + x[0]*(A2-A1)
         self.inner_points = inner_points
+        rad = np.average(np.linalg.norm(self.inner_points, axis = 1))
+        self.intersec_radius = rad
 
     def plot(self,ax):
         for line in self.lines:
@@ -52,6 +54,28 @@ class polygramm():
         ax.plot(self.inner_points[:,0],
                 self.inner_points[:,1], "g.")
     
+def text_along_circle(ax, text, r, **kwargs):
+    fig, imax = plt.subplots()
+    rend = fig.canvas.get_renderer()
+    t = imax.text(0.5, 0.5, 'test')
+
+    bb = t.get_window_extent(renderer=rend)
+    width = bb.width/5
+    height = bb.height
+
+    dphi = 2*np.pi*0.022
+    phi = -np.arange(len(text)) *dphi + np.pi/2 + dphi*len(text)/2
+    for i in range(len(text)):
+        ax.text((r+0/2)*np.cos(phi[i]), 
+                (r+0/2)*np.sin(phi[i]),
+                text[i], 
+                rotation = (phi[i]-np.pi/2)*180/np.pi,
+                verticalalignment='center', 
+                horizontalalignment='center',
+                **kwargs)
+
+
+
 
 
 fontfile = "/home/jonas/Desktop/Programmieren/fonts/daedra/Daedra.otf"
@@ -63,9 +87,11 @@ fig, ax = plt.subplots()
 print_circle(ax, 1)
 #print_polygon(ax, 9, 1, 3)
 #print_polygon(ax, 9, 1, 2)
-gramma = polygramm(1, 15, 5)
+gramma = polygramm(1, 10, 3)
 gramma.plot(ax)
 gramma.mark_inner_points(ax)
+gramma2 = polygramm(gramma.intersec_radius, 5, 2, phi0 = np.pi/2)
+gramma2.plot(ax)
 #print_circle(ax, 1/golden)
 #print_circle(ax, 1/golden**2)
 #print_circle(ax, 1/golden**3)
@@ -80,6 +106,12 @@ plt.text(-0.13,
          fontproperties = font, 
          fontsize = 10,
          zorder = 10)
+
+text_along_circle(ax, 
+                  "Who ever reads this is forced to amaze",
+                  1.1,
+                  #fontproperties = font, 
+                  fontsize = 25)
 plt.gca().set_aspect('equal')
 plt.show()
 
