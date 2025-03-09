@@ -11,23 +11,48 @@ def print_circle(ax, r):
     y = np.cos(phi)*r
     ax.plot(x,y)
 
-def print_polygon(ax, n,r, s = 0, phi0 = -np.pi/2):
-    if (n)%(s+1)!= 0 or s==0:
-        phi = np.linspace(0,2*np.pi,n+1)*(s+1) + phi0
-        x = np.cos(phi)*r
-        y = np.sin(phi)*r
-        ax.plot(x,y)
-        return [x,y]
-    else:
-        m = n//(s+1)
-        x = np.empty(0,float)
-        y = np.empty(0,float)
-        for i in range(m):
-            #print(i)
-            points = print_polygon(ax, m,r = r,phi0 = -np.pi/2+i*2*np.pi/n)
-            x = np.concatenate(x,points[0])
-            y = np.concatenate(y,points[1])
-        return [x,y]
+class polygramm():
+
+    def __init__(self, r, p, q=1, phi0= -np.pi/2):
+        self.p = p
+        self.r = r
+        self.s = q
+        self.phi0 = 0
+        
+        phi = np.linspace(0,2*np.pi,p+1) + phi0
+        self.outer_points = np.zeros([p,2], float)
+        self.outer_points[:,0] = np.cos(phi[:-1])*r
+        self.outer_points[:,1] = np.sin(phi[:-1])*r
+        self.lines = [[i, (i+q)%p] for i in range(p)]
+        self.calc_intersecs(self.outer_points, self.lines)
+
+    
+    def calc_intersecs(self, points, lines):
+        inner_points = np.zeros([self.p,2])
+        for i in range(len(lines)):
+            print(i)
+            A1 = points[lines[i][0],:]
+            A2 = points[lines[i][1],:]
+            B1 = points[lines[(i+1)%self.p][0],:]
+            B2 = points[lines[(i+1)%self.p][1],:]
+            print(A1)
+            Y = A1-B1
+            M = np.array([B2-B1, A2-A1])
+            print(M)
+            x = np.linalg.solve(M.T,Y)
+            inner_points[i] = A1 + x[0]*(A2-A1)
+        self.inner_points = inner_points
+
+    def plot(self,ax):
+        for line in self.lines:
+            ax.plot(self.outer_points[line,0], 
+                    self.outer_points[line,1],
+                    "k")
+    def mark_inner_points(self, ax):
+        ax.plot(self.inner_points[:,0],
+                self.inner_points[:,1], "g.")
+    
+
 
 fontfile = "/home/jonas/Desktop/Programmieren/fonts/daedra/Daedra.otf"
 font = fm.FontProperties(fname=fontfile)
@@ -38,7 +63,9 @@ fig, ax = plt.subplots()
 print_circle(ax, 1)
 #print_polygon(ax, 9, 1, 3)
 #print_polygon(ax, 9, 1, 2)
-points = print_polygon(ax, 7, 1, 1)
+gramma = polygramm(1, 15, 5)
+gramma.plot(ax)
+gramma.mark_inner_points(ax)
 #print_circle(ax, 1/golden)
 #print_circle(ax, 1/golden**2)
 #print_circle(ax, 1/golden**3)
