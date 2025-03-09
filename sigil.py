@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
-
+#https://stackoverflow.com/questions/19353576/curved-text-rendering-in-matplotlib
 golden = (1 + 5 ** 0.5) / 2
 
 
@@ -20,8 +20,8 @@ def print_polygon(ax, n,r, s = 0, phi0 = -np.pi/2):
         return [x,y]
     else:
         m = n//(s+1)
-        x = np.empty(float)
-        y = np.empty(float)
+        x = np.empty(0,float)
+        y = np.empty(0,float)
         for i in range(m):
             #print(i)
             points = print_polygon(ax, m,r = r,phi0 = -np.pi/2+i*2*np.pi/n)
@@ -38,7 +38,7 @@ fig, ax = plt.subplots()
 print_circle(ax, 1)
 #print_polygon(ax, 9, 1, 3)
 #print_polygon(ax, 9, 1, 2)
-points = print_polygon(ax, 9, 1, 1)
+points = print_polygon(ax, 7, 1, 1)
 #print_circle(ax, 1/golden)
 #print_circle(ax, 1/golden**2)
 #print_circle(ax, 1/golden**3)
@@ -47,11 +47,11 @@ circle = plt.Circle([0,-1],0.2,fc = "w", ec = "k", zorder = 5)
 ax.add_patch(circle)
 
 ax.set_xlabel("secret message", fontproperties = font, fontsize = 30)
-plt.text(0,
-         -1,
+plt.text(-0.13,
+         -1.16,
          "walle\nwalle\nmanche\nstrecke", 
          fontproperties = font, 
-         fontsize = 20,
+         fontsize = 10,
          zorder = 10)
 plt.gca().set_aspect('equal')
 plt.show()
